@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://ongc-document-assistant.vercel.app/sitemap.xml
+Sitemap: https://ongc-ai.vercel.app/sitemap.xml
