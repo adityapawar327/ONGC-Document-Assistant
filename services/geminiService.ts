@@ -57,13 +57,6 @@ export async function fileSearch(
     
     const { accuracyMode = 'moderate', contextWindow = 'medium' } = options;
     
-    // Map context window to chunk count
-    const chunkCounts = {
-        'short': 4,
-        'medium': 8,
-        'high': 15
-    };
-    
     // Build system instruction based on accuracy mode
     let systemInstruction = "DO NOT ASK THE USER TO READ THE MANUAL, pinpoint the relevant sections in the response itself. ";
     
@@ -118,7 +111,19 @@ export async function generateExampleQuestions(ragStoreName: string): Promise<st
     try {
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
-            contents: "Analyze the uploaded documents and generate exactly 6 practical questions that users would commonly ask about the content. Focus on: technical specifications, procedures, safety guidelines, and operational information. Return ONLY a JSON array of question strings. Example format: [\"question 1\", \"question 2\", \"question 3\", \"question 4\", \"question 5\", \"question 6\"]",
+            contents: `You are analyzing documents that have been uploaded to a RAG system. Your task is to:
+
+1. Read and understand the ACTUAL content of the uploaded documents
+2. Generate 6 specific, relevant questions based on what's ACTUALLY in these documents
+3. Questions should be practical and answerable from the document content
+4. Focus on: key topics, technical details, procedures, specifications, dates, requirements, or important information found in the documents
+
+IMPORTANT: Base your questions on the ACTUAL document content, not generic topics.
+
+Return ONLY a JSON array of 6 question strings in this exact format:
+["Question about specific topic from document?", "Question about another specific detail?", "Question about procedure mentioned?", "Question about specification found?", "Question about requirement stated?", "Question about information in document?"]
+
+Generate the questions now based on the uploaded documents:`,
             config: {
                 tools: [
                     {
