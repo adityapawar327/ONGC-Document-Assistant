@@ -1,0 +1,6 @@
+# ONGC Document Assistant - Robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ongc-document-assistant.vercel.app/sitemap.xml

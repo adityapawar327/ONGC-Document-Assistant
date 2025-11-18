@@ -332,6 +332,31 @@ For technical issues:
 - Session cleanup
 - No hardcoded secrets
 
+## Social Media Sharing
+
+The application includes comprehensive Open Graph and Twitter Card meta tags for beautiful social media previews:
+
+**Features:**
+- Custom title and description
+- ONGC logo as preview image
+- Optimized for Facebook, Twitter, LinkedIn
+- Professional appearance when shared
+
+**Preview includes:**
+- Application title
+- Description of features
+- ONGC branding
+- Bilingual support mention
+
+## SEO Optimization
+
+- ✅ Meta tags for search engines
+- ✅ Open Graph tags for social media
+- ✅ Twitter Card support
+- ✅ Robots.txt for crawlers
+- ✅ Sitemap.xml for indexing
+- ✅ Semantic HTML structure
+
 ## Acknowledgments
 
 - Built with Google Gemini AI
