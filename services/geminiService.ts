@@ -68,33 +68,51 @@ export async function fileSearch(
         systemInstruction += "Use the uploaded documents as a reference, but feel free to provide comprehensive answers using your general knowledge when helpful.";
     }
     
-    // Note: The context window (chunk count) is handled by the system instruction
-    // as the Gemini FileSearch API doesn't expose maxChunks configuration directly
     const contextHint = contextWindow === 'short' 
         ? " Keep the response concise and focused." 
         : contextWindow === 'high' 
         ? " Provide a comprehensive and detailed response." 
         : "";
     
-    const response: GenerateContentResponse = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: query + " " + systemInstruction + contextHint,
-        config: {
-            tools: [
-                {
-                    fileSearch: {
-                        fileSearchStoreNames: [ragStoreName]
-                    }
+    // Retry logic for network errors
+    let lastError: any;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            const response: GenerateContentResponse = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: query + " " + systemInstruction + contextHint,
+                config: {
+                    tools: [
+                        {
+                            fileSearch: {
+                                fileSearchStoreNames: [ragStoreName]
+                            }
+                        }
+                    ]
                 }
-            ]
-        }
-    });
+            });
 
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    return {
-        text: response.text || '',
-        groundingChunks: groundingChunks,
-    };
+            const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+            return {
+                text: response.text || '',
+                groundingChunks: groundingChunks,
+            };
+        } catch (error) {
+            lastError = error;
+            console.error(`Attempt ${attempt + 1} failed:`, error);
+            
+            // If it's a network error and not the last attempt, wait and retry
+            if (attempt < 2 && (error instanceof TypeError || (error as any)?.message?.includes('fetch'))) {
+                await delay(1000 * (attempt + 1)); // Exponential backoff: 1s, 2s
+                continue;
+            }
+            
+            // If it's not a network error or last attempt, throw immediately
+            throw error;
+        }
+    }
+    
+    throw lastError;
 }
 
 export async function generateExampleQuestions(ragStoreName: string): Promise<string[]> {
